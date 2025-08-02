@@ -38,6 +38,6 @@
 
 ### Important
 
-When working with a repository that contains submodules, **you must first update and push changes in the submodule**, and **only afterward** push changes to the main repository.
+When working with a repository that contains submodules, **you must first update and push changes in the submodule**, and **only afterward** push changes to the main repository (host).
 
 If you do it the other way around, the submodule references in the main repository may be lost, and you'll have to resolve conflicts manually.
