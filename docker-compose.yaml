@@ -1,0 +1,68 @@
+services:
+  nats-server:
+    image: nats:2.11.6-alpine3.22
+    ports:
+      - 8222:8222
+
+  client-gateway:
+    container_name: client-gateway
+    build: ./client-gateway
+    depends_on:
+      - nats-server
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:3000
+    volumes:
+      - ./client-gateway/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=${NATS_SERVERS}
+
+  products-ms:
+    container_name: products-ms
+    build: ./products-ms
+    depends_on:
+      - nats-server
+    volumes:
+      - ./products-ms/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3001
+      - NATS_SERVERS=${NATS_SERVERS}
+      - DATABASE_URL=file:./dev.db
+
+  orders-ms:
+    container_name: orders-ms
+    build: ./orders-ms
+    depends_on:
+      orders-ms-db:
+        condition: service_healthy
+        restart: true
+      nats-server:
+        condition: service_started
+    volumes:
+      - ./orders-ms/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3002
+      - NATS_SERVERS=${NATS_SERVERS}
+      - DATABASE_URL=postgresql://${ORDERS_DB_USER}:${ORDERS_DB_PASSWORD}@orders-ms-db:5432/${ORDERS_DB_NAME}?schema=public
+
+  orders-ms-db:
+    container_name: orders-ms-db
+    image: postgres:17.5-alpine3.22
+    restart: always
+    volumes:
+      - ./orders-ms/orders-db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${ORDERS_DB_USER}
+      - POSTGRES_PASSWORD=${ORDERS_DB_PASSWORD}
+      - POSTGRES_DB=${ORDERS_DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDERS_DB_USER} -d ${ORDERS_DB_NAME}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
