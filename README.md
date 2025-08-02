@@ -1,4 +1,32 @@
-### Steps to Create Git Submodules
+### To run the application from scratch
+
+1. Clone the repository
+
+```bash
+   git clone https://github.com/nest-microservices-app-sbsmrth/products-ms-app.git
+```
+
+2. Set the .env file
+
+```bash
+   mv .env.example .env
+```
+
+3. Fetch the submodules
+
+```bash
+   git submodule update --init --recursive
+```
+
+4. Run all the microservices at once
+
+```bash
+   docker compose up --build
+```
+
+---
+
+### Relevant information about git submodules
 
 1. **Create a new repository on GitHub, which will work as the host repository**
 
@@ -41,3 +69,5 @@
 When working with a repository that contains submodules, **you must first update and push changes in the submodule**, and **only afterward** push changes to the main repository (host).
 
 If you do it the other way around, the submodule references in the main repository may be lost, and you'll have to resolve conflicts manually.
+
+
