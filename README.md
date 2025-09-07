@@ -3,7 +3,7 @@
 1. Clone the repository
 
 ```bash
-   git clone https://github.com/nest-microservices-app-sbsmrth/products-ms-app.git
+   git clone https://github.com/sbsmrth/products-ms-app.git
 ```
 
 2. Set the .env file
